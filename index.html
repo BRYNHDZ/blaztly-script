@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>blaztly — playbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #ffffff; --surface: #f5f5f5; --border: #e8e8e8;
+    --text: #111111; --muted: #888888;
+    --green: #16a34a; --green-bg: #f0fdf4;
+    --red: #dc2626; --red-bg: #fef2f2;
+    --amber: #92400e; --amber-bg: #fffbeb;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 0 24px 80px; }
+  header { padding: 40px 0 32px; display: flex; align-items: baseline; justify-content: space-between; border-bottom: 1px solid var(--border); margin-bottom: 32px; }
+  .logo { font-size: 15px; font-weight: 600; letter-spacing: -.2px; }
+  .header-sub { font-size: 13px; color: var(--muted); }
+  .goal { background: var(--surface); border-radius: 8px; padding: 14px 18px; margin-bottom: 28px; font-size: 13px; color: var(--muted); }
+  .goal strong { color: var(--text); font-weight: 600; }
+  .tabs { display: flex; gap: 2px; margin-bottom: 32px; border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; position: sticky; top: 0; background: white; z-index: 10; padding-top: 16px; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; color: var(--muted); background: none; border: none; padding: 8px 14px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; transition: color .15s; }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--text); border-bottom-color: var(--text); }
+  .section { display: none; }
+  .section.active { display: block; }
+  .s-title { font-size: 20px; font-weight: 600; letter-spacing: -.3px; margin-bottom: 4px; }
+  .s-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; line-height: 1.6; }
+  .block { border-radius: 8px; padding: 16px 18px; margin-bottom: 12px; }
+  .block-label { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px; }
+  .block-body { font-size: 14px; line-height: 1.7; }
+  .block-note { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
+  .say { background: var(--green-bg); } .dont { background: var(--red-bg); } .note { background: var(--surface); }
+  .say .block-label { color: var(--green); } .dont .block-label { color: var(--red); } .note .block-label { color: var(--muted); }
+  .say .block-body { font-style: italic; } .dont .block-body { font-style: italic; color: #666; }
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+  .q-item { padding: 16px 0; border-bottom: 1px solid var(--border); }
+  .q-item:last-child { border-bottom: none; }
+  .q-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .q-num { width: 20px; height: 20px; border-radius: 50%; background: var(--surface); font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--muted); }
+  .q-tag { font-size: 11px; color: var(--muted); font-weight: 500; }
+  .q-script { font-size: 14px; font-style: italic; margin-bottom: 6px; line-height: 1.7; padding-left: 30px; }
+  .q-tip { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; background: var(--amber-bg); color: var(--amber); margin-left: 30px; }
+  .offer { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 20px; }
+  .offer-row { display: flex; justify-content: space-between; padding: 11px 16px; font-size: 13px; border-bottom: 1px solid var(--border); }
+  .offer-row:last-child { border-bottom: none; }
+  .offer-key { color: var(--muted); } .offer-val { font-weight: 600; }
+  .pill-group { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+  .pill { font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
+  .check-item { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .check-item:last-child { border-bottom: none; }
+  .check-n { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--border); font-size: 11px; font-weight: 600; color: var(--muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .check-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 3px; }
+  .check-body { font-size: 13px; line-height: 1.6; }
+  .obj { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
+  .obj-head { padding: 14px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 500; user-select: none; background: white; transition: background .12s; }
+  .obj-head:hover { background: var(--surface); }
+  .obj-chev { font-size: 10px; color: var(--muted); transition: transform .2s; }
+  .obj-chev.open { transform: rotate(180deg); }
+  .obj-body { display: none; padding: 16px; border-top: 1px solid var(--border); background: var(--surface); }
+  .obj-body.open { display: block; }
+  .obj-script { font-size: 14px; font-style: italic; margin-bottom: 8px; line-height: 1.7; }
+  .obj-note { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .m-row { display: grid; grid-template-columns: 1fr 24px 1fr; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .m-from, .m-to { font-size: 13px; padding: 12px 14px; border-radius: 8px; line-height: 1.5; }
+  .m-from { background: var(--red-bg); color: #b91c1c; } .m-to { background: var(--green-bg); color: #15803d; }
+  .m-arr { text-align: center; color: var(--border); font-size: 14px; }
+  .rules { border-top: 1px solid var(--border); margin-top: 24px; padding-top: 20px; }
+  .rules-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 12px; }
+  .rule { display: flex; gap: 10px; font-size: 13px; color: var(--text); padding: 6px 0; }
+  .rule::before { content: '—'; color: var(--muted); flex-shrink: 0; }
+  footer { text-align: center; font-size: 12px; color: var(--muted); padding: 32px 0; border-top: 1px solid var(--border); margin-top: 32px; }
+  @media (max-width: 500px) { .m-row { grid-template-columns: 1fr; } .m-arr { display: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="logo">blaztly</div>
+  <div class="header-sub">chris's cold call playbook</div>
+</header>
+
+<div class="goal">
+  <strong>one goal per call:</strong> book a 20-minute zoom. not to sell a website, not to discuss pricing — just the meeting. stop talking the second they say yes.
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="show('precall',this)">pre-call</button>
+  <button class="tab" onclick="show('opener',this)">opener</button>
+  <button class="tab" onclick="show('discovery',this)">discovery</button>
+  <button class="tab" onclick="show('pivot',this)">pivot</button>
+  <button class="tab" onclick="show('close',this)">close</button>
+  <button class="tab" onclick="show('objections',this)">objections</button>
+  <button class="tab" onclick="show('mindset',this)">mindset</button>
+</div>
+
+<!-- PRE-CALL -->
+<div class="section active" id="precall">
+  <div class="s-title">pre-call setup</div>
+  <div class="s-sub">the scraper does the research. your job is to show up knowing one specific thing so you don't sound like every other cold caller.</div>
+  <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">what the scraper surfaces</div>
+  <div class="pill-group">
+    <span class="pill">no website</span><span class="pill">not mobile-friendly</span><span class="pill">no google business listing</span>
+    <span class="pill">0 reviews</span><span class="pill">site loads slow</span><span class="pill">no booking button</span>
+    <span class="pill">site outdated 3+ yrs</span><span class="pill">competitor outranking them</span><span class="pill">social only, no site</span>
+  </div>
+  <div class="check-item">
+    <div class="check-n">1</div>
+    <div><div class="check-label">read the scraped observation</div><div class="check-body">that one specific thing is your opener. understand it before you dial — say it naturally, not like you're reading it.</div></div>
+  </div>
+  <div class="check-item">
+    <div class="check-n">2</div>
+    <div><div class="check-label">know their business type</div><div class="check-body">restaurant, landscaper, barber, contractor — you'll say this in your hook. get it right.</div></div>
+  </div>
+  <div class="check-item">
+    <div class="check-n">3</div>
+    <div><div class="check-label">confirm you're calling the decision maker</div><div class="check-body">owner or manager? if not, the "are you the right person" question will navigate you there.</div></div>
+  </div>
+  <div class="divider"></div>
+  <div style="font-size:13px;font-weight:600;margin-bottom:10px">know the offer</div>
+  <div class="offer">
+    <div class="offer-row"><span class="offer-key">setup (one-time)</span><span class="offer-val">$700</span></div>
+    <div class="offer-row"><span class="offer-key">hosting + support</span><span class="offer-val">$39/mo</span></div>
+    <div class="offer-row"><span class="offer-key">live in</span><span class="offer-val">under 7 days</span></div>
+    <div class="offer-row"><span class="offer-key">includes</span><span class="offer-val">domain, hosting, ssl, branding, seo, unlimited edits</span></div>
+    <div class="offer-row"><span class="offer-key">real client example</span><span class="offer-val">amigolandscaping.com</span></div>
+  </div>
+</div>
+
+<!-- OPENER -->
+<div class="section" id="opener">
+  <div class="s-title">the opener</div>
+  <div class="s-sub">ask a question in the first 10 seconds. not a pitch, not an intro — a question. everything flows from their answer.</div>
+  <div class="block dont">
+    <div class="block-label">never say</div>
+    <div class="block-body">"hi, my name is chris and i'm calling from blaztly. we're a website company and i was wondering if you had a few minutes to talk about your online presence..."</div>
+    <div class="block-note">signals sales call immediately. they shut down in 3 seconds.</div>
+  </div>
+  <div class="block say">
+    <div class="block-label">say this</div>
+    <div class="block-body">"hey [name], this is chris — quick question for you." <span style="font-style:normal;color:#888">[pause 1 second]</span> "i looked up [business name] and noticed [scraped observation]. are you the right person to talk to about that?"</div>
+  </div>
+  <div class="block note">
+    <div class="block-label">why it works</div>
+    <div class="block-body">the pause forces them to respond before you've said anything that sounds like a sales call. "are you the right person" is disarming — most people say yes just to find out what you noticed.</div>
+  </div>
+  <div class="divider"></div>
+  <div class="block say">
+    <div class="block-label">once they confirm — the hook</div>
+    <div class="block-body">"the reason i'm calling is we help local businesses in the area get a custom site up in under a week — one that actually shows up when people are searching for what you do. i just want to ask you one quick question."</div>
+    <div class="block-note">"one quick question" is your permission bridge. they almost always say go ahead. now you're in discovery.</div>
+  </div>
+</div>
+
+<!-- DISCOVERY -->
+<div class="section" id="discovery">
+  <div class="s-title">discovery</div>
+  <div class="s-sub">ask 1 to 3 questions, then stop. don't pitch here. the more they talk, the more they talk themselves into having a problem.</div>
+  <div class="q-item">
+    <div class="q-meta"><div class="q-num">1</div><div class="q-tag">awareness — ask this every time</div></div>
+    <div class="q-script">"when someone searches for [their service] in [city], do you know where you show up?"</div>
+    <span class="q-tip">most say no — that's your opening</span>
+  </div>
+  <div class="q-item">
+    <div class="q-meta"><div class="q-num">2</div><div class="q-tag">source of business — if they engage</div></div>
+    <div class="q-script">"are most of your new customers from referrals, or do you get any from online?"</div>
+    <span class="q-tip">all referrals = a ceiling on their growth</span>
+  </div>
+  <div class="q-item">
+    <div class="q-meta"><div class="q-num">3</div><div class="q-tag">gut check — if they're skeptical</div></div>
+    <div class="q-script">"if a potential customer googled your business right now — what would they find?"</div>
+    <span class="q-tip">let them answer. silence is fine.</span>
+  </div>
+  <div class="block note" style="margin-top:20px">
+    <div class="block-label">rule</div>
+    <div class="block-body">do not pitch during discovery. just ask and listen. the pivot comes after.</div>
+  </div>
+</div>
+
+<!-- PIVOT -->
+<div class="section" id="pivot">
+  <div class="s-title">the pivot</div>
+  <div class="s-sub">one result, one sentence. connect what they just told you to why the meeting is worth 20 minutes.</div>
+  <div class="block say">
+    <div class="block-label">say this</div>
+    <div class="block-body">"that's exactly why i reached out. we just launched a site for a local landscaper in the area — amigolandscaping.com — and they started getting inbound calls from google within the first month. i'd love to show you what that could look like for your business."</div>
+  </div>
+  <div class="block note">
+    <div class="block-label">use the real example</div>
+    <div class="block-body">amigolandscaping.com is real. if their business type is different, swap "landscaper" for the right one and keep everything else. the story is: real client, real result, google calls within a month.</div>
+  </div>
+  <div class="divider"></div>
+  <div class="block dont">
+    <div class="block-label">never do this</div>
+    <div class="block-body">"we offer custom websites, mobile-responsive design, seo optimization, google business integration, ssl certificates, hosting, unlimited edits, and lite branding..."</div>
+    <div class="block-note">one outcome beats ten features. always.</div>
+  </div>
+</div>
+
+<!-- CLOSE -->
+<div class="section" id="close">
+  <div class="s-title">the close</div>
+  <div class="s-sub">close for the meeting, not the sale. low pressure, two specific days, nothing to decide except a time slot.</div>
+  <div class="block say">
+    <div class="block-label">say this</div>
+    <div class="block-body">"i'm not trying to sell you anything today — i just want to spend 20 minutes showing you what your online presence looks like from a customer's point of view, and what it could look like. do you have time thursday or friday this week?"</div>
+  </div>
+  <div class="block note">
+    <div class="block-label">two-choice close</div>
+    <div class="block-body">always name two specific days — never "when are you free?" if neither works, ask them to name a day. don't end without a specific time on the calendar.</div>
+  </div>
+  <div class="block say">
+    <div class="block-label">once they say yes</div>
+    <div class="block-body">"perfect — what's your email? i'll send the calendar invite right now."</div>
+    <div class="block-note">send it during the call. confirmed invites show 3× higher attendance than verbal agreements.</div>
+  </div>
+  <div class="rules">
+    <div class="rules-label">close rules</div>
+    <div class="rule">stop talking the moment they say yes</div>
+    <div class="rule">never give pricing on a cold call</div>
+    <div class="rule">the booked zoom is the win — log it</div>
+    <div class="rule">no-show? follow up once by text that same day</div>
+  </div>
+</div>
+
+<!-- OBJECTIONS -->
+<div class="section" id="objections">
+  <div class="s-title">objections</div>
+  <div class="s-sub">every objection is a timing or trust issue. remove the friction, don't win the argument.</div>
+  <div class="obj">
+    <div class="obj-head" onclick="toggleObj(this)"><span>"i already have a website"</span><span class="obj-chev">▼</span></div>
+    <div class="obj-body">
+      <div class="obj-script">"perfect. quick question — when someone finds it on their phone, does it actually load fast and show your services clearly? a lot of businesses have a site but it's not bringing them calls. that's exactly what i'd show you."</div>
+      <div class="obj-note">pivot to quality, not existence. a bad site often ranks worse than no site.</div>
+    </div>
+  </div>
+  <div class="obj">
+    <div class="obj-head" onclick="toggleObj(this)"><span>"not interested"</span><span class="obj-chev">▼</span></div>
+    <div class="obj-body">
+      <div class="obj-script">"totally fair. real quick — do you get any customers from google right now, or is it mostly word of mouth?"</div>
+      <div class="obj-note">don't argue. just ask a discovery question. if they answer, you're back in. if they hang up, they weren't a buyer.</div>
+    </div>
+  </div>
+  <div class="obj">
+    <div class="obj-head" onclick="toggleObj(this)"><span>"how much does it cost?"</span><span class="obj-chev">▼</span></div>
+    <div class="obj-body">
+      <div class="obj-script">"i don't want to throw a number at you before i understand your situation — every business is different. that's what the 20 minutes is for. does thursday work?"</div>
+      <div class="obj-note">if they absolutely won't move: "setup is $700 one-time, $39 a month for hosting — everything included. but let me show you the full picture first." then re-close immediately.</div>
+    </div>
+  </div>
+  <div class="obj">
+    <div class="obj-head" onclick="toggleObj(this)"><span>"just send me an email"</span><span class="obj-chev">▼</span></div>
+    <div class="obj-body">
+      <div class="obj-script">"happy to. before i do — quick question so i send you something relevant: are you the person who makes decisions on marketing and your online presence?"</div>
+      <div class="obj-note">qualify them before spending time on an email. if they confirm, you've also re-confirmed the decision maker.</div>
+    </div>
+  </div>
+  <div class="obj">
+    <div class="obj-head" onclick="toggleObj(this)"><span>"i don't have time right now"</span><span class="obj-chev">▼</span></div>
+    <div class="obj-body">
+      <div class="obj-script">"completely get it — that's why i'm calling instead of stopping by. it's 20 minutes on zoom, i come to you. would early morning or late afternoon work better this week?"</div>
+    </div>
+  </div>
+  <div class="obj">
+    <div class="obj-head" onclick="toggleObj(this)"><span>"i tried a website before and it didn't work"</span><span class="obj-chev">▼</span></div>
+    <div class="obj-body">
+      <div class="obj-script">"that's really common — most of those sites weren't built to show up on google or turn a visitor into a call. that's the whole difference in what we do. 20 minutes and you'll see exactly why."</div>
+      <div class="obj-note">validate the bad experience, then differentiate. you're not asking them to trust you — just to look.</div>
+    </div>
+  </div>
+  <div class="obj">
+    <div class="obj-head" onclick="toggleObj(this)"><span>"i use social media instead"</span><span class="obj-chev">▼</span></div>
+    <div class="obj-body">
+      <div class="obj-script">"that's smart — social is great for people who already know you. google catches people who've never heard of you but are actively searching for what you do right now. those are your hottest leads. i'd love to show you."</div>
+      <div class="obj-note">don't compete with social — complement it. then re-close for the meeting.</div>
+    </div>
+  </div>
+</div>
+
+<!-- MINDSET -->
+<div class="section" id="mindset">
+  <div class="s-title">mindset rewires</div>
+  <div class="s-sub">insurance built good habits — thick skin, high volume, structure. those are assets. the product sell is different. here's what to unlearn.</div>
+  <div class="m-row">
+    <div class="m-from">fear sell — "what if something goes wrong?"</div>
+    <div class="m-arr">→</div>
+    <div class="m-to">opportunity sell — "here's what you're leaving on the table"</div>
+  </div>
+  <div class="m-row">
+    <div class="m-from">build rapport for weeks before closing</div>
+    <div class="m-arr">→</div>
+    <div class="m-to">close for a meeting in under 3 minutes</div>
+  </div>
+  <div class="m-row">
+    <div class="m-from">intangible product, slow ROI</div>
+    <div class="m-arr">→</div>
+    <div class="m-to">visible result — google them together on the call</div>
+  </div>
+  <div class="m-row">
+    <div class="m-from">long pitch = more convincing</div>
+    <div class="m-arr">→</div>
+    <div class="m-to">short pitch + one good question = higher close rate</div>
+  </div>
+  <div class="m-row">
+    <div class="m-from">rejection is personal</div>
+    <div class="m-arr">→</div>
+    <div class="m-to">rejection is timing — log it, follow up in 60 days</div>
+  </div>
+  <div class="m-row">
+    <div class="m-from">close on the call</div>
+    <div class="m-arr">→</div>
+    <div class="m-to">close in the zoom — the call just books it</div>
+  </div>
+  <div class="rules">
+    <div class="rules-label">daily reminders</div>
+    <div class="rule">volume beats perfection — make the calls, fix the script after</div>
+    <div class="rule">one outcome beats ten features</div>
+    <div class="rule">never give pricing on a cold call</div>
+    <div class="rule">stop talking when they say yes to the meeting</div>
+    <div class="rule">no-show is a follow-up, not a loss</div>
+  </div>
+</div>
+
+</div>
+<footer><div class="wrap">blaztly · chris's playbook · 2026</div></footer>
+
+<script>
+function show(id,btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function toggleObj(head){
+  const body=head.nextElementSibling,chev=head.querySelector('.obj-chev'),open=body.classList.contains('open');
+  document.querySelectorAll('.obj-body').forEach(b=>b.classList.remove('open'));
+  document.querySelectorAll('.obj-chev').forEach(c=>c.classList.remove('open'));
+  if(!open){body.classList.add('open');chev.classList.add('open');}
+}
+</script>
+</body>
+</html>
